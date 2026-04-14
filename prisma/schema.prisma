@@ -1,0 +1,253 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+
+model University {
+  id    String  @id @default(uuid())
+  name  String
+  email String
+  country String
+  city  String
+  total_course  String
+  hostel_fee  String
+  foreign_students  String
+  medical_insurance String
+  notary Boolean @default(false)
+  documents_required  String[]
+  universityHistory String @db.VarChar(250)
+  aboutCountry String @db.VarChar(250)
+  cityWeather String @db.VarChar(250)
+  aboutHostels String @db.VarChar(250)
+  courses Course[]
+  bankDetails BankDetails?
+  universityCourse University_Course[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Course {
+  id    String   @id @default(uuid())
+  name  String
+  duration String
+  fee String
+  medium String
+  level CourseLevel
+  accountKey String
+  universities University[]
+  universityCourse University_Course[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model University_Course {
+  universityId String
+  courseId     String
+  university   University @relation(fields: [universityId], references: [id])
+  course       Course     @relation(fields: [courseId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  @@id([universityId, courseId])
+}
+
+model BankDetails {
+  id            String   @id @default(uuid())
+  universityId  String   @unique
+  bankName      String
+  accountNumber String
+  tinNumber     String
+  bikNumber     String
+  corrospondant String
+  trrcNumber    String
+  university    University @relation(fields: [universityId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model User {
+  id    String  @id @default(uuid())
+  username String @unique
+  password String
+  fullName String
+  email String @unique
+  mobileNumber String @unique
+  role UserRole @default(ADMIN)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Agent {
+  id    String  @id @default(uuid())
+  username String @unique
+  password String
+  fullName String
+  email String @unique
+  mobileNumber String @unique
+  companyName String @unique
+  gstNumber String?
+  companyRegistration String?
+  agentIdProof String?
+  role UserRole @default(AGENT)
+  students  Student[]
+  applications Application[]
+  subscriptionPlanId String?
+  subscriptionPlan SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Student {
+  id    String  @id @default(uuid())
+  username String @unique
+  password String
+  fullName String
+  email String @unique
+  mobileNumber String @unique
+  fatherName String?
+  passportNumber String?
+  dob DateTime?
+  role UserRole @default(STUDENT)
+  documents NotarizedDocuments[]
+  agent     Agent?   @relation(fields: [agentId], references: [id])
+  agentId   String?
+  applications Application[]
+  subscriptionPlanId String?
+  subscriptionPlan SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Application{
+  id    String  @id @default(uuid())
+  country String
+  city String?
+  university String
+  course String
+  medium String
+  fullName String
+  fatherName String
+  motherName String
+  email String @unique
+  mobileNumber String @unique
+  citizen String
+  zipCode String
+  state String
+  passportNumber String
+  secoundaryBoard String
+  secoundaryGrades String
+  higherSecondaryBoard String
+  stream String
+  higherSecondaryGrades String
+  universityName String
+  degree String
+  grades String
+  documents String[]
+  student   Student? @relation(fields: [studentId], references: [id])
+  studentId String?
+  agent     Agent?   @relation(fields: [agentId], references: [id])
+  agentId   String?
+  status ApplicationStatus @default(PENDING)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model SubscriptionPlan {
+  id    String  @id @default(uuid())
+  plan  SubscriptionPlanType 
+  paymentId String
+  status SubscriptionPlanStatus
+  agent Agent[]
+  student Student[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+
+model VisaDetails{
+  id String @id @default(uuid())
+  country String
+  helplineNumber String
+  email String @unique
+  universityName String
+  description String? @db.VarChar(240)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model NotarizedDocuments {
+  id String @id @default(uuid())
+  fullName  String
+  email     String
+  mobileNumber String
+  documents String[]
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+}
+
+model NotaryProviders{
+  id String @id @default(uuid())
+  fullName  String
+  email     String
+  mobileNumber String
+  firmName String
+  address String? @db.VarChar(100)
+}
+
+
+enum CourseLevel {
+  UG
+  PG
+  Language
+}
+
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  AGENT
+  STUDENT
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  PAYPAL
+  DEBIT_CARD
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  FAILED
+}
+
+enum SubscriptionPlanType {
+  BASIC
+  PREMIUM
+  AGENT
+}
+
+enum SubscriptionPlanStatus{
+  ACTIVE
+  EXPIRED
+}
+
+
+
+
+
+
+
+
+
+  

@@ -1,0 +1,2 @@
+-- CreateEnum
+CREATE TYPE "PaymentMethod" AS ENUM ('CREDITCARD', 'PAYPAL', 'DEBITCARD');
